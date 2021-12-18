@@ -1,3 +1,5 @@
+const PORT = 3001;
+
 let persons = [
     {
         id: 1,
@@ -27,24 +29,23 @@ const server = express();
 
 server.use(express.json());
 
-morgan.token('content', (req,res) => req.method == "POST" ? JSON.stringify(req.body) : null
+// Only show request content if request method is POST
+morgan.token('content', (req, res) => req.method == "POST" ? "## request-content: " + JSON.stringify(req.body) : " "
 )
 
 server.use(
-    morgan(':method :url :status :res[content-length] - :response-time ms :content')
+    morgan('method: :method ## url: :url ## status-code: :status ## content-len: :res[content-length] ## response-time: :response-time ms :content')
 )
 
 // getting all resources
 server.get("/api/persons", (request, response) => {
     response.json(persons);
 });
-const PORT = 3001;
 
 // information page about api
 server.get("/info", (request, response) => {
     response.send(
-        `<p>phonebook has info for ${
-            persons.length
+        `<p>phonebook has info for ${persons.length
         } people</p><p>${new Date()}</p>`
     );
 });
@@ -53,10 +54,14 @@ server.get("/info", (request, response) => {
 server.get("/api/persons/:id", (request, response) => {
     const id = Number(request.params.id);
     const person = persons.find((person) => person.id === id);
+
+    // resource does not exist
     if (!person) {
         response.status(404).end();
         return;
     }
+
+    // else return resource
     response.json(person);
 });
 
@@ -64,10 +69,14 @@ server.get("/api/persons/:id", (request, response) => {
 server.delete("/api/persons/:id", (request, response) => {
     const id = Number(request.params.id);
     const person = persons.find((person) => person.id === id);
+
+    // does not exist for deletion to occur
     if (!person) {
         response.status(404).end();
         return;
     }
+
+    // else delete
     persons = persons.filter((person) => person.id !== id);
     response.status(204).end();
 });
@@ -92,11 +101,11 @@ server.post("/api/persons/", (request, response) => {
         response.status(400).json({ error: "name is a duplicate" });
         return;
     }
-    
+
     // else we just add new person
     const newPerson = { id: id, name: name, number: number };
     persons = persons.concat(newPerson);
-    response.status(204).json(newPerson);
+    response.status(200).json(newPerson);
 });
 
 server.listen(PORT, () => {
