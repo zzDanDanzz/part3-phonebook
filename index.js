@@ -25,25 +25,26 @@ let persons = [
 
 const express = require("express");
 var morgan = require('morgan')
-const server = express();
+const app = express();
 
-server.use(express.json());
+app.use(express.json());
+app.use(express.static('build'))
 
 // Only show request content if request method is POST
 morgan.token('content', (req, res) => req.method == "POST" ? "## request-content: " + JSON.stringify(req.body) : " "
 )
 
-server.use(
+app.use(
     morgan('method: :method ## url: :url ## status-code: :status ## content-len: :res[content-length] ## response-time: :response-time ms :content')
 )
 
 // getting all resources
-server.get("/api/persons", (request, response) => {
+app.get("/api/persons", (request, response) => {
     response.json(persons);
 });
 
 // information page about api
-server.get("/info", (request, response) => {
+app.get("/info", (request, response) => {
     response.send(
         `<p>phonebook has info for ${persons.length
         } people</p><p>${new Date()}</p>`
@@ -51,7 +52,7 @@ server.get("/info", (request, response) => {
 });
 
 // getting one resource
-server.get("/api/persons/:id", (request, response) => {
+app.get("/api/persons/:id", (request, response) => {
     const id = Number(request.params.id);
     const person = persons.find((person) => person.id === id);
 
@@ -66,7 +67,7 @@ server.get("/api/persons/:id", (request, response) => {
 });
 
 // deleting a resource
-server.delete("/api/persons/:id", (request, response) => {
+app.delete("/api/persons/:id", (request, response) => {
     const id = Number(request.params.id);
     const person = persons.find((person) => person.id === id);
 
@@ -82,7 +83,7 @@ server.delete("/api/persons/:id", (request, response) => {
 });
 
 // adding a resource
-server.post("/api/persons/", (request, response) => {
+app.post("/api/persons/", (request, response) => {
     const id = Math.floor(Math.random() * 1000000);
     const name = request.body.name;
     const number = request.body.number;
@@ -108,6 +109,6 @@ server.post("/api/persons/", (request, response) => {
     response.status(200).json(newPerson);
 });
 
-server.listen(PORT, () => {
+app.listen(PORT, () => {
     console.log(`listening on port ${PORT}`);
 });
