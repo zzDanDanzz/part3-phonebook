@@ -1,31 +1,10 @@
+// is this going to cause any problems for heroku
 const PORT = process.env.PORT || 3001;
 
-let persons = [
-    {
-        id: 1,
-        name: "Arto Hellas",
-        number: "040-123456",
-    },
-    {
-        id: 2,
-        name: "Ada Lovelace",
-        number: "39-44-5323523",
-    },
-    {
-        id: 3,
-        name: "Dan Abramov",
-        number: "12-43-234345",
-    },
-    {
-        id: 4,
-        name: "Mary Poppendieck",
-        number: "39-23-6423122",
-    },
-];
-
 const express = require("express");
-var morgan = require('morgan')
+const morgan = require('morgan')
 const app = express();
+const Contact = require('./note')
 
 app.use(express.json());
 app.use(express.static('build'))
@@ -40,7 +19,10 @@ app.use(
 
 // getting all resources
 app.get("/api/persons", (request, response) => {
-    response.json(persons);
+    Contact.find()
+        .then(contacts => {
+            response.json(contacts);
+        })
 });
 
 // information page about api
