@@ -5,6 +5,7 @@ const express = require("express");
 const morgan = require('morgan')
 const app = express();
 const Contact = require('./note')
+const errorHandler = require('./errorHandler');
 
 app.use(express.json());
 app.use(express.static('build'))
@@ -34,18 +35,20 @@ app.get("/info", (request, response) => {
 });
 
 // getting one resource
-app.get("/api/persons/:id", (request, response) => {
-    const id = Number(request.params.id);
-    const person = persons.find((person) => person.id === id);
+app.get("/api/persons/:id", (request, response, next) => {
+    const id = request.params.id
+    Contact.findById(id).then(contact => {
+        // resource does not exist
+        if (!contact) {
+            response.status(404).end();
+            return
+        }
+        // found contact, send
+        response.json(contact)
+    })
+        // send errors to error handler
+        .catch(err => { next(err) })
 
-    // resource does not exist
-    if (!person) {
-        response.status(404).end();
-        return;
-    }
-
-    // else return resource
-    response.json(person);
 });
 
 // deleting a resource
@@ -90,6 +93,8 @@ app.post("/api/persons/", (request, response) => {
     persons = persons.concat(newPerson);
     response.status(200).json(newPerson);
 });
+
+app.use(errorHandler);
 
 app.listen(PORT, () => {
     console.log(`listening on port ${PORT}`);
