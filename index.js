@@ -52,19 +52,21 @@ app.get("/api/persons/:id", (request, response, next) => {
 });
 
 // deleting a resource
-app.delete("/api/persons/:id", (request, response) => {
-    const id = Number(request.params.id);
-    const person = persons.find((person) => person.id === id);
+app.delete("/api/persons/:id", (request, response, next) => {
+    const id = request.params.id;
+    Contact.findByIdAndDelete(id)
+        .then((exists) => {
+            // if user does not exist for deletion
+            if (!exists) {
+                response.status(404).end();
+                return;
+            }
+            // otherwise send 204 after successful delete
+            response.status(204).end()
+        })
+        // send errors to error handler
+        .catch(err => next(err))
 
-    // does not exist for deletion to occur
-    if (!person) {
-        response.status(404).end();
-        return;
-    }
-
-    // else delete
-    persons = persons.filter((person) => person.id !== id);
-    response.status(204).end();
 });
 
 // adding a resource
