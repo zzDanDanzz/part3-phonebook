@@ -59,10 +59,10 @@ app.delete("/api/persons/:id", (request, response, next) => {
             // if user does not exist for deletion
             if (!exists) {
                 response.status(404).end();
-                return;
-            }
+            } else {
             // otherwise send 204 after successful delete
             response.status(204).end()
+            }
         })
         // send errors to error handler
         .catch(err => next(err))
@@ -95,12 +95,12 @@ app.post("/api/persons/", async (request, response) => {
             response.status(200).json(contact);
         })
         .catch((err) => {
-            console.log('There was an error creating the new contact ::: ');
+            console.log('There was an error creating the new contact ::: ', err);
         })
 });
 
 // Updating a resource
-app.put("/api/persons/:id", (request, response) => {
+app.put("/api/persons/:id", (request, response, next) => {
     const id = request.params.id;
     const number = request.body.number;
     if (!number) {
@@ -108,7 +108,15 @@ app.put("/api/persons/:id", (request, response) => {
         response.status(400).json({ error: "number missing" });
         return;
     }
-    Contact.findByIdAndUpdate(id, { number })
+    Contact.findByIdAndUpdate(id, { number }, {new: true})
+    .then(updatedContact => {
+        if (updatedContact) {
+            response.json(updatedContact)
+        } else {
+            response.status(400).json({error: "user does not exist"})
+        }
+    })
+    .catch(err => next(err))
 
 })
 
