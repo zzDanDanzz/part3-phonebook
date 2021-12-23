@@ -70,16 +70,9 @@ app.delete("/api/persons/:id", (request, response, next) => {
 });
 
 // adding a resource
-app.post("/api/persons/", async (request, response) => {
+app.post("/api/persons/", async (request, response, next) => {
     const name = request.body.name;
     const number = request.body.number;
-
-    // Incomplete information
-    if (!name || !number) {
-        response.statusMessage = "information incomplete";
-        response.status(400).json({ error: "name and/or number missing" });
-        return;
-    }
 
     // name already exists
     const contactAlreadyExists = await Contact.find({ name })
@@ -94,9 +87,7 @@ app.post("/api/persons/", async (request, response) => {
         .then(contact => {
             response.status(200).json(contact);
         })
-        .catch((err) => {
-            console.log('There was an error creating the new contact ::: ', err);
-        })
+        .catch((err) => next(err))
 });
 
 // Updating a resource
