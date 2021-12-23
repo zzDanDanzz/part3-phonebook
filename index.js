@@ -71,7 +71,6 @@ app.delete("/api/persons/:id", (request, response, next) => {
 
 // adding a resource
 app.post("/api/persons/", (request, response) => {
-    const id = Math.floor(Math.random() * 1000000);
     const name = request.body.name;
     const number = request.body.number;
 
@@ -83,18 +82,33 @@ app.post("/api/persons/", (request, response) => {
     }
 
     // name already exists
-    const alreadyExists = persons.find((person) => person.name === name);
-    if (alreadyExists) {
-        response.statusMessage = "name is a duplicate";
-        response.status(400).json({ error: "name is a duplicate" });
-        return;
-    }
+    Contact.find({ name }).then(contact => {
+        if (contact) {
+            response.status(400).json({ error: "name is a duplicate" , contact: contact});
+        }
+    })
 
     // else we just add new person
-    const newPerson = { id: id, name: name, number: number };
-    persons = persons.concat(newPerson);
-    response.status(200).json(newPerson);
+    const contact = new Contact({ name: name, number: number })
+    contact.save().then(contact => {
+        response.status(200).json(contact);
+    }).catch((err) => {
+        console.log('There was an error creating the new contact ::: ');
+    })
 });
+
+// Updating a resource
+app.put("/api/persons/:id", (request, response) => {
+    const id = request.params.id;
+    const number = request.body.number;
+    if (!number) {
+        response.statusMessage = "information incomplete";
+        response.status(400).json({ error: "number missing" });
+        return;
+    }
+    Contact.findByIdAndUpdate(id, {number})
+
+})
 
 app.use(errorHandler);
 
