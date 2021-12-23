@@ -74,14 +74,6 @@ app.post("/api/persons/", async (request, response, next) => {
     const name = request.body.name;
     const number = request.body.number;
 
-    // name already exists
-    const contactAlreadyExists = await Contact.find({ name })
-    if (contactAlreadyExists.length > 0) {
-        response.status(400).json({ error: "name is a duplicate", contact: contactAlreadyExists });
-        return
-    }
-
-    // else we just add new person
     new Contact({ name: name, number: number })
         .save()
         .then(contact => {

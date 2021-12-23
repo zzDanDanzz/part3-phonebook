@@ -1,4 +1,5 @@
 const mongoose = require('mongoose')
+const uniqueValidator = require('mongoose-unique-validator')
 const MONGO_URI = process.env.MONGO_URI
 
 // connect to db
@@ -12,6 +13,7 @@ const schema = mongoose.Schema({
     name: {
         type: String,
         minlength: 3,
+        unique: true,
         required: true
     },
     number: {
@@ -28,6 +30,9 @@ const schema = mongoose.Schema({
         }
     }
 })
+
+// use unique validator
+schema.plugin(uniqueValidator)
 
 // Contact model
 module.exports = mongoose.model('Contact', schema)
