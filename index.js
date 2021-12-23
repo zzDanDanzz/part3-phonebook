@@ -1,4 +1,3 @@
-// is this going to cause any problems for heroku
 const PORT = process.env.PORT || 3001;
 
 const express = require("express");
