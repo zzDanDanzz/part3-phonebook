@@ -70,7 +70,7 @@ app.delete("/api/persons/:id", (request, response, next) => {
 });
 
 // adding a resource
-app.post("/api/persons/", (request, response) => {
+app.post("/api/persons/", async (request, response) => {
     const name = request.body.name;
     const number = request.body.number;
 
@@ -82,19 +82,21 @@ app.post("/api/persons/", (request, response) => {
     }
 
     // name already exists
-    Contact.find({ name }).then(contact => {
-        if (contact) {
-            response.status(400).json({ error: "name is a duplicate" , contact: contact});
-        }
-    })
+    const contactAlreadyExists = await Contact.find({ name })
+    if (contactAlreadyExists.length > 0) {
+        response.status(400).json({ error: "name is a duplicate", contact: contactAlreadyExists });
+        return
+    }
 
     // else we just add new person
-    const contact = new Contact({ name: name, number: number })
-    contact.save().then(contact => {
-        response.status(200).json(contact);
-    }).catch((err) => {
-        console.log('There was an error creating the new contact ::: ');
-    })
+    new Contact({ name: name, number: number })
+        .save()
+        .then(contact => {
+            response.status(200).json(contact);
+        })
+        .catch((err) => {
+            console.log('There was an error creating the new contact ::: ');
+        })
 });
 
 // Updating a resource
@@ -106,7 +108,7 @@ app.put("/api/persons/:id", (request, response) => {
         response.status(400).json({ error: "number missing" });
         return;
     }
-    Contact.findByIdAndUpdate(id, {number})
+    Contact.findByIdAndUpdate(id, { number })
 
 })
 
