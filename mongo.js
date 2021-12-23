@@ -1,6 +1,6 @@
-if (process.argv.length != 5 && process.argv.length != 3 && process.argv.length != 6) {
+if (process.argv.length != 5 && process.argv.length != 3) {
     printUsage()
-    process.exit()
+    process.exit(0)
 }
 
 const mongoose = require('mongoose')
@@ -16,15 +16,12 @@ const schema = mongoose.Schema({
 // Contact model
 const Contact = mongoose.model('Contact', schema)
 
-const name = process.argv[3]
-const number = process.argv[4]
-
-if (process.argv.length === 5) {
+if (process.argv.length == 5) {
+    const name = process.argv[3]
+    const number = process.argv[4]
     createNewContact(name, number, password)
-} else if (process.argv.length === 3) {
+} else if (process.argv.length == 3) {
     getAllContacts()
-} else if (process.argv.length === 6) {
-    updateContact(name, number)
 }
 
 function createNewContact(name, number) {
@@ -52,14 +49,6 @@ function getAllContacts() {
         mongoose.connection.close()
     })
 
-}
-
-function updateContact(name, number) {
-    console.log('Updating contact ...');
-    Contact.findOneAndUpdate({ name }, { number }).then(res => {
-        console.log("res ::: ", res);
-    }).catch(err => console.log('err\nerr\nerr\nerr\n ::: ', err))
-    .finally(() => mongoose.connection.close());
 }
 
 function printUsage() {
