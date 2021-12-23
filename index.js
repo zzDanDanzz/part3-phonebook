@@ -91,7 +91,7 @@ app.put("/api/persons/:id", (request, response, next) => {
         response.status(400).json({ error: "number missing" });
         return;
     }
-    Contact.findByIdAndUpdate(id, { number }, {new: true})
+    Contact.findByIdAndUpdate(id, { number }, {new: true, runValidators: true, context: 'query'})
     .then(updatedContact => {
         if (updatedContact) {
             response.json(updatedContact)

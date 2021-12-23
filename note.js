@@ -12,13 +12,13 @@ mongoose.connect(MONGO_URI).then(() => {
 const schema = mongoose.Schema({
     name: {
         type: String,
-        minlength: 3,
+        minlength: [3, "name needs to be at least 3 letters long"],
         unique: true,
         required: true
     },
     number: {
         type: Number,
-        min: 10000000, // min 10 million means at least 8 digits (required for exercise 3.20) note: i did this because minlength didn't work on number type
+        min: [10000000, "your number ({VALUE}) needs to be at least 8 digits long" ], // min 10 million means at least 8 digits (required for exercise 3.20) note: i did this because minlength didn't work on number type
         required: true
     }
 }, {
@@ -32,7 +32,7 @@ const schema = mongoose.Schema({
 })
 
 // use unique validator
-schema.plugin(uniqueValidator)
+schema.plugin(uniqueValidator, { message: '{VALUE} already exists in the phonebook' })
 
 // Contact model
 module.exports = mongoose.model('Contact', schema)

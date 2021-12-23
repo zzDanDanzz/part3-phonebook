@@ -1,6 +1,6 @@
-PUT http://localhost:3001/api/persons/61c30ea1c8f25ac299a3 HTTP/1.1
+PUT http://localhost:3001/api/persons/61c30ea1c8f25ac299a3d8c1 HTTP/1.1
 content-type: application/json
 
 {
-    "number": "545454"
+    "boo":123
 }
